@@ -1,0 +1,30 @@
+// Some colleges change their timetables in the middle of the semester, so to reduce the hassle of
+// deleting all reminders one by one, we can simply execute this
+
+function clearGeneratedLectures() {
+  var cal = CalendarApp.getDefaultCalendar();
+  
+  // Set the window to look for the events created starting from today
+  var today = new Date();
+  var endSearch = new Date();
+  endSearch.setDate(today.getDate() + 7); // Looks at events over the next 7 days
+  
+  var events = cal.getEvents(today, endSearch);
+  var deletedCount = 0;
+  
+  // Array of your lecture titles to target specifically, I have taken the ones in Timetable.xlsx specifically for example
+  var lectureTitles = ["Group", "MVC", "Topo PR", "Topo", "NM", "NM PR", "STA", "Group PR", "MVC PR"];
+  
+  for (var i = 0; i < events.length; i++) {
+    var event = events[i];
+    if (lectureTitles.indexOf(event.getTitle()) !== -1) {
+      // If it's part of a recurring series, this deletes the entire series
+      if (event.isRecurringEvent()) {
+        var series = event.getEventSeries();
+        series.deleteEventSeries();
+        deletedCount++;
+      }
+    }
+  }
+  SpreadsheetApp.getUi().alert('Successfully cleared ' + deletedCount + ' recurring lecture series from your calendar.');
+}
